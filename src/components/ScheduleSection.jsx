@@ -169,50 +169,6 @@ const EventCard = ({ delay, title, time, venue, address, mapsUrl, mapsLink, aos,
   </div>
 );
 
-// ── Lazy Video: hanya load & play saat masuk viewport ──────────────────────
-const LazyVideo = ({ src, className }) => {
-  const videoRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);   // pasang src → browser mulai download
-          observer.disconnect(); // cukup sekali
-        }
-      },
-      { threshold: 0.25 }       // mulai load saat 25% card kelihatan
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  // Setelah src terpasang, pastikan video langsung play
-  useEffect(() => {
-    if (isVisible && videoRef.current) {
-      videoRef.current.play().catch(() => {/* autoplay policy – dibiarkan */});
-    }
-  }, [isVisible]);
-
-  return (
-    <video
-      ref={videoRef}
-      src={isVisible ? src : undefined}
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="none"
-      className={className}
-    />
-  );
-};
-
 const ScheduleSection = () => {
   const { days, hours, minutes, seconds } = useCountdown(TARGET_DATE);
 
@@ -415,26 +371,6 @@ const ScheduleSection = () => {
             />
           </div>
 
-        </div>
-
-        {/* Video Map Lokasi */}
-        <div 
-          className="w-full max-w-lg mx-auto mb-12 p-3 rounded-2xl border border-[#C3A365]/40"
-          style={{ 
-            background: 'rgba(255,255,255,0.65)', 
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 0 40px rgba(195, 163, 101, 0.25), inset 0 0 20px rgba(255, 255, 255, 0.5)'
-          }}
-          data-aos="fade-up"
-          data-aos-delay="1500"
-          data-aos-duration="1500"
-        >
-          <div className="aspect-video w-full rounded-xl overflow-hidden relative">
-            <LazyVideo
-              src="/Map.mp4"
-              className="w-full h-full object-cover bg-[#f8f5f0]"
-            />
-          </div>
         </div>
 
         {/* Countdown */}

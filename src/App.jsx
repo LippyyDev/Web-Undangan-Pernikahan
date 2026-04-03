@@ -19,6 +19,7 @@ import AdminDashboard from './components/admin/AdminDashboard'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import InvalidInvitation from './components/InvalidInvitation'
 import Preloader from './components/Preloader'
+import FloatingMusic from './components/FloatingMusic'
 import { Sun, CloudSun } from 'lucide-react'
 
 import AOS from 'aos'
@@ -82,9 +83,10 @@ const InvitationGate = () => {
   const [searchParams] = useSearchParams()
   const slug = searchParams.get('to')
 
-  // status: 'checking' | 'valid' | 'invalid'
+  // status: 'checking' | 'ready' | 'valid' | 'invalid'
   const [status, setStatus] = useState('checking')
   const [guestName, setGuestName] = useState(null)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
     // Tidak ada parameter ?to= → langsung invalid
@@ -111,7 +113,7 @@ const InvitationGate = () => {
           const remainingDelay = Math.max(0, 2500 - elapsed)
           
           setTimeout(() => {
-            setStatus('valid')
+            setStatus('ready')
           }, remainingDelay)
         }
       } catch {
@@ -123,14 +125,24 @@ const InvitationGate = () => {
     checkSlugAndLoad()
   }, [slug])
 
+  const handleOpen = () => {
+    setStatus('valid')
+    setIsPlaying(true)
+  }
+
   // Layar loading saat verifikasi
-  if (status === 'checking') {
-    return <Preloader guestName={guestName} />
+  if (status === 'checking' || status === 'ready') {
+    return <Preloader guestName={guestName} isReady={status === 'ready'} onOpen={handleOpen} />
   }
 
   if (status === 'invalid') return <InvalidInvitation />
 
-  return <WeddingPage />
+  return (
+    <>
+      <WeddingPage />
+      <FloatingMusic isPlayingGlobally={isPlaying} />
+    </>
+  )
 }
 
 function App() {

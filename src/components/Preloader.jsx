@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Preloader = ({ guestName }) => {
+const Preloader = ({ guestName, isReady, onOpen }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -147,18 +147,36 @@ const Preloader = ({ guestName }) => {
               />
             </div>
             
-            <motion.div 
-               className="text-base uppercase font-mono tracking-[0.4em] text-[#C3A365]/60"
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ duration: 1, delay: 0.3 }}
-            >
-              <div className="flex items-center gap-4">
-                <span className="opacity-0">-</span>
-                <span className="min-w-[45px] text-center">{progress === 100 ? '100' : progress}%</span>
-                <span className="opacity-0">-</span>
-              </div>
-            </motion.div>
+            <AnimatePresence mode="wait">
+              {isReady && progress === 100 ? (
+                <motion.button
+                   key="open-btn"
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   exit={{ opacity: 0, y: -10 }}
+                   transition={{ duration: 0.5 }}
+                   onClick={onOpen}
+                   className="px-8 py-3 bg-gradient-to-r from-[#C3A365] to-[#d4a373] text-[#4a3020] text-sm md:text-base font-bold font-serif uppercase tracking-widest rounded-full shadow-lg hover:shadow-[0_0_15px_rgba(195,163,101,0.5)] transform hover:scale-105 transition-all duration-300"
+                >
+                  Buka Undangan
+                </motion.button>
+              ) : (
+                <motion.div 
+                   key="progress-text"
+                   className="text-base uppercase font-mono tracking-[0.4em] text-[#C3A365]/60"
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   exit={{ opacity: 0 }}
+                   transition={{ duration: 0.5 }}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="opacity-0">-</span>
+                    <span className="min-w-[45px] text-center">{progress === 100 ? '100' : progress}%</span>
+                    <span className="opacity-0">-</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
         </div>
 
       </div>
