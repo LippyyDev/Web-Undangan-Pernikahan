@@ -60,12 +60,24 @@ const StorySection = () => {
     document.body.style.overflow = selectedPhoto ? 'hidden' : '';
   }, [selectedPhoto]);
 
-  // Auto-shuffle: setiap foto pindah ke slot berikutnya
+  // Random Shuffle: "Terbang berpindah tempat acak"
   useEffect(() => {
-    const interval = setInterval(() => {
-      setOrder(prev => prev.map(slot => (slot + 1) % 5));
-    }, 2200);
-    return () => clearInterval(interval);
+    // Memberikan jeda sebelum mulai terbang
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => {
+        setOrder(prev => {
+          const next = [...prev];
+          // Fisher-Yates random shuffle
+          for (let i = next.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [next[i], next[j]] = [next[j], next[i]];
+          }
+          return next;
+        });
+      }, 3500); // Acak setiap 3.5 detik
+      return () => clearInterval(interval);
+    }, 2000); // Mulai setelah 2 detik pertama (AOS masuk)
+    return () => clearTimeout(timeout);
   }, []);
 
   const layout = isMd ? DESKTOP_LAYOUT : MOBILE_LAYOUT;
@@ -163,7 +175,7 @@ const StorySection = () => {
                 : `translate(0px, 0px) rotate(${slot.rotate})`;
 
               return (
-                // Outer Wrapper khusus untuk AOS supaya CSS transisinya tidak bentrok dengan React inline style
+                // Outer Wrapper: Mengatur Animasi AOS saat awal dan CSS Transition untuk pergerakan terbang Top/Left antar slot
                 <div
                   key={photoIdx}
                   data-aos="zoom-out-up"
@@ -176,44 +188,48 @@ const StorySection = () => {
                     width: layout.cardW,
                     height: layout.cardH,
                     zIndex: isHovered ? 60 : slot.z,
+                    // Di sinilah animasi terbang (pindah tempat) itu dieksekusi agar terlihat melayang dari titik A ke titik B
+                    transition: 'top 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.5s',
                   }}
                 >
-                  {/* Inner Card khusus untuk Transform Posisi/Shuffle/Hover */}
-                  <div
-                    onClick={() => setSelectedPhoto(src)}
-                    onMouseEnter={() => setHoveredPhoto(photoIdx)}
-                    onMouseLeave={() => setHoveredPhoto(null)}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      transform,
-                      transformOrigin: 'center bottom',
-                      willChange: 'transform',
-                      borderRadius: 12,
-                      border: `${layout.border}px solid white`,
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      boxShadow: isHovered
-                        ? '0 0 60px 12px rgba(195, 163, 101, 0.8), 0 0 20px 4px rgba(255, 255, 255, 0.5)'
-                        : '0 0 30px 5px rgba(195, 163, 101, 0.55)',
-                      transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease',
-                    }}
-                  >
-                    <img
-                      src={src}
-                      alt={`Story ${photoIdx + 1}`}
-                      loading="lazy"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', display: 'block' }}
-                    />
+                  <div style={{ animation: `cardFloat 4s ease-in-out infinite`, animationDelay: `${photoIdx * 0.4}s`, width: '100%', height: '100%', willChange: 'transform' }}>
+                    {/* Inner Card khusus untuk Transform Posisi/Shuffle/Hover */}
                     <div
+                      onClick={() => setSelectedPhoto(src)}
+                      onMouseEnter={() => setHoveredPhoto(photoIdx)}
+                      onMouseLeave={() => setHoveredPhoto(null)}
                       style={{
-                        position: 'absolute', inset: 0,
-                        background: 'linear-gradient(to top, rgba(0,0,0,0.18) 0%, transparent 60%)',
-                        opacity: isHovered ? 0 : 1,
-                        transition: 'opacity 0.4s ease',
-                        pointerEvents: 'none',
+                        width: '100%',
+                        height: '100%',
+                        transform,
+                        transformOrigin: 'center bottom',
+                        willChange: 'transform',
+                        borderRadius: 12,
+                        border: `${layout.border}px solid white`,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        boxShadow: isHovered
+                          ? '0 0 60px 12px rgba(195, 163, 101, 0.8), 0 0 20px 4px rgba(255, 255, 255, 0.5)'
+                          : '0 0 30px 5px rgba(195, 163, 101, 0.55)',
+                        transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease',
                       }}
-                    />
+                    >
+                      <img
+                        src={src}
+                        alt={`Story ${photoIdx + 1}`}
+                        loading="lazy"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', display: 'block' }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute', inset: 0,
+                          background: 'linear-gradient(to top, rgba(0,0,0,0.18) 0%, transparent 60%)',
+                          opacity: isHovered ? 0 : 1,
+                          transition: 'opacity 0.4s ease',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               );

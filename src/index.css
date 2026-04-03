@@ -272,3 +272,9 @@ h1, h2, h3, h4, h5, h6 {
   animation: pulseOpacity 3s ease-in-out infinite alternate;
   will-change: opacity;
 }
+
+/* Card Float Hover */
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
