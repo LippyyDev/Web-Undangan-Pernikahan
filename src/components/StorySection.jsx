@@ -158,10 +158,9 @@ const StorySection = () => {
               const slot = layout.slots[slotIdx];
               const isHovered = hoveredPhoto === photoIdx;
 
-              // Semua transform digabung dalam 1 property → GPU komposit, tidak ada jitter
               const transform = isHovered
-                ? `translate(${slot.tx}px, ${slot.ty - 22}px) rotate(0deg) scale(1.07)`
-                : `translate(${slot.tx}px, ${slot.ty}px) rotate(${slot.rotate})`;
+                ? `translate(0px, -22px) rotate(0deg) scale(1.07)`
+                : `translate(0px, 0px) rotate(${slot.rotate})`;
 
               return (
                 // Outer Wrapper khusus untuk AOS supaya CSS transisinya tidak bentrok dengan React inline style
@@ -170,8 +169,10 @@ const StorySection = () => {
                   data-aos="zoom-out-up"
                   data-aos-duration="1000"
                   data-aos-delay={photoIdx * 150}
-                  className="absolute top-0 left-0"
+                  className="absolute"
                   style={{
+                    top: slot.ty,
+                    left: slot.tx,
                     width: layout.cardW,
                     height: layout.cardH,
                     zIndex: isHovered ? 60 : slot.z,

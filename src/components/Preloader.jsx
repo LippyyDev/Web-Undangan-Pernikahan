@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import foto5 from '/FOTO5.jpeg';
 
 const Preloader = ({ guestName, isReady, onOpen }) => {
   const [progress, setProgress] = useState(0);
@@ -27,6 +28,15 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
+  useEffect(() => {
+    if (isReady && progress === 100) {
+      const timer = setTimeout(() => {
+        onOpen();
+      }, 400); // Jeda sebentar sebelum otomatis membuka undangan
+      return () => clearTimeout(timer);
+    }
+  }, [isReady, progress, onOpen]);
+
   return (
     <div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden"
@@ -35,9 +45,20 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
         fontFamily: "'Inter', sans-serif"
       }}
     >
+      {/* Photo Background dengan opacity rendah */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <img
+          src={foto5}
+          alt="background"
+          className="w-full h-full object-cover object-[center_20%] opacity-20"
+        />
+        {/* Dark overlay minimal */}
+        <div className="absolute inset-0 bg-[#0a0806]/60" />
+      </div>
+
       {/* Noise background untuk tekstur premium */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-20"
+        className="absolute inset-0 pointer-events-none opacity-20 z-0"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E\")",
@@ -45,13 +66,6 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
         }}
       />
       
-      {/* Glowing aura di tengah */}
-      <motion.div 
-        className="absolute w-[60vw] h-[60vw] max-w-[400px] max-h-[400px] rounded-full blur-[100px]"
-        style={{ background: 'radial-gradient(circle, rgba(195,163,101,0.12) 0%, rgba(195,163,101,0) 70%)' }}
-        animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      />
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-sm px-8 pt-10">
         
@@ -74,7 +88,7 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
                 strokeLinecap="round"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatType: "loop" }}
+                transition={{ duration: 2.5, ease: "easeInOut" }}
                 style={{ filter: 'drop-shadow(0px 0px 8px rgba(195,163,101,0.5))' }}
               />
             </svg>
@@ -88,7 +102,7 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
            className="flex flex-col items-center gap-2 mb-8"
         >
           <h2 
-            className="text-6xl md:text-7xl text-transparent bg-clip-text pt-4 pb-2 -mt-4 pl-2" 
+            className="text-7xl md:text-8xl text-transparent bg-clip-text text-center pt-2 pb-2 -mt-4 flex flex-col items-center" 
             style={{ 
               fontFamily: "'Great Vibes', cursive", 
               backgroundImage: 'linear-gradient(to right, #d4a373, #faedcd, #d4a373)',
@@ -97,7 +111,9 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
               lineHeight: '1.2'
             }}
           >
-            Tenry & Palli
+            <span className="block">Tenry</span>
+            <span className="block text-5xl md:text-6xl py-1">&</span>
+            <span className="block">Palli</span>
           </h2>
           <motion.div 
             className="flex items-center gap-4 mt-1"
@@ -148,34 +164,20 @@ const Preloader = ({ guestName, isReady, onOpen }) => {
             </div>
             
             <AnimatePresence mode="wait">
-              {isReady && progress === 100 ? (
-                <motion.button
-                   key="open-btn"
-                   initial={{ opacity: 0, y: 10 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -10 }}
-                   transition={{ duration: 0.5 }}
-                   onClick={onOpen}
-                   className="px-8 py-3 bg-gradient-to-r from-[#C3A365] to-[#d4a373] text-[#4a3020] text-sm md:text-base font-bold font-serif uppercase tracking-widest rounded-full shadow-lg hover:shadow-[0_0_15px_rgba(195,163,101,0.5)] transform hover:scale-105 transition-all duration-300"
-                >
-                  Buka Undangan
-                </motion.button>
-              ) : (
-                <motion.div 
-                   key="progress-text"
-                   className="text-base uppercase font-mono tracking-[0.4em] text-[#C3A365]/60"
-                   initial={{ opacity: 0 }}
-                   animate={{ opacity: 1 }}
-                   exit={{ opacity: 0 }}
-                   transition={{ duration: 0.5 }}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="opacity-0">-</span>
-                    <span className="min-w-[45px] text-center">{progress === 100 ? '100' : progress}%</span>
-                    <span className="opacity-0">-</span>
-                  </div>
-                </motion.div>
-              )}
+              <motion.div 
+                 key="progress-text"
+                 className="text-base uppercase font-mono tracking-[0.4em] text-[#C3A365]/60"
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 exit={{ opacity: 0 }}
+                 transition={{ duration: 0.5 }}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="opacity-0">-</span>
+                  <span className="min-w-[45px] text-center">{progress === 100 ? '100' : progress}%</span>
+                  <span className="opacity-0">-</span>
+                </div>
+              </motion.div>
             </AnimatePresence>
         </div>
 

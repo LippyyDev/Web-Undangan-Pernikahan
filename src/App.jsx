@@ -26,9 +26,9 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 
 // ── Konten halaman undangan (hanya ditampilkan jika slug valid) ──
-const WeddingPage = () => (
-  <main className="font-sans text-text-brown min-h-screen bg-cream-100 selection:bg-pink-200 selection:text-text-dark">
-    <Hero />
+const WeddingPage = ({ isOpened, onOpenInvitation }) => (
+  <main className={`font-sans text-text-brown bg-cream-100 selection:bg-pink-200 selection:text-text-dark transition-all duration-700 ${isOpened ? 'min-h-screen' : 'h-screen overflow-hidden'}`}>
+    <Hero onOpenInvitation={onOpenInvitation} />
     <MarqueeSection 
       text="WEDDING INVITATION • UNDANGAN PERNIKAHAN"
     />
@@ -87,6 +87,7 @@ const InvitationGate = () => {
   const [status, setStatus] = useState('checking')
   const [guestName, setGuestName] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isOpened, setIsOpened] = useState(false)
 
   useEffect(() => {
     // Tidak ada parameter ?to= → langsung invalid
@@ -125,22 +126,26 @@ const InvitationGate = () => {
     checkSlugAndLoad()
   }, [slug])
 
-  const handleOpen = () => {
+  const handlePreloaderDone = () => {
     setStatus('valid')
+  }
+
+  const handleOpenInvitation = () => {
+    setIsOpened(true)
     setIsPlaying(true)
   }
 
   // Layar loading saat verifikasi
   if (status === 'checking' || status === 'ready') {
-    return <Preloader guestName={guestName} isReady={status === 'ready'} onOpen={handleOpen} />
+    return <Preloader guestName={guestName} isReady={status === 'ready'} onOpen={handlePreloaderDone} />
   }
 
   if (status === 'invalid') return <InvalidInvitation />
 
   return (
     <>
-      <WeddingPage />
-      <FloatingMusic isPlayingGlobally={isPlaying} />
+      <WeddingPage isOpened={isOpened} onOpenInvitation={handleOpenInvitation} />
+      {isOpened && <FloatingMusic isPlayingGlobally={isPlaying} />}
     </>
   )
 }
