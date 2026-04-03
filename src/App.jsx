@@ -1,4 +1,8 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { collection, query, where, getDocs } from 'firebase/firestore'
+import { db } from './lib/firebase'
+
 import Hero from './components/Hero'
 import MarqueeSection from './components/MarqueeSection'
 import InvitationSection from './components/InvitationSection'
@@ -13,13 +17,14 @@ import Footer from './components/Footer'
 import AdminLogin from './components/admin/AdminLogin'
 import AdminDashboard from './components/admin/AdminDashboard'
 import ProtectedRoute from './components/admin/ProtectedRoute'
+import InvalidInvitation from './components/InvalidInvitation'
+import Preloader from './components/Preloader'
 import { Sun, CloudSun } from 'lucide-react'
 
-import { useEffect } from 'react'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
-// Halaman utama undangan
+// ── Konten halaman undangan (hanya ditampilkan jika slug valid) ──
 const WeddingPage = () => (
   <main className="font-sans text-text-brown min-h-screen bg-cream-100 selection:bg-pink-200 selection:text-text-dark">
     <Hero />
@@ -52,12 +57,81 @@ const WeddingPage = () => (
       } 
     />
     <ScheduleSection />
+    <MarqueeSection 
+      text="BARAKALLAHU LAKUMA • SAKINAH MAWADDAH WARAHMAH" 
+      bgColor="#4a3020" 
+      textColor="#f1d0ca" 
+    />
     <WeddingGiftSection />
+    <MarqueeSection 
+      text="SEND US YOUR BLESSINGS • KIRIMKAN DOA RESTU" 
+    />
     <WishesSection />
+    <MarqueeSection 
+      text="PLEASE CONFIRM YOUR ATTENDANCE • KONFIRMASI KEHADIRAN" 
+      bgColor="#4a3020" 
+      textColor="#f1d0ca" 
+    />
     <RSVPSection />
     <Footer />
   </main>
 )
+
+// ── Gate: cek validitas slug ?to= sebelum render halaman undangan ──
+const InvitationGate = () => {
+  const [searchParams] = useSearchParams()
+  const slug = searchParams.get('to')
+
+  // status: 'checking' | 'valid' | 'invalid'
+  const [status, setStatus] = useState('checking')
+  const [guestName, setGuestName] = useState(null)
+
+  useEffect(() => {
+    // Tidak ada parameter ?to= → langsung invalid
+    if (!slug || !slug.trim()) {
+      setStatus('invalid')
+      return
+    }
+
+    const checkSlugAndLoad = async () => {
+      try {
+        const startTime = Date.now()
+        
+        const snap = await getDocs(query(collection(db, 'guests'), where('slug', '==', slug.trim())))
+        
+        if (snap.empty) {
+          setStatus('invalid')
+        } else {
+          // Set the guest name right away so the Preloader can show it
+          // Gunakan .nama karena di database tersimpan sebagai 'nama' bukan 'name'
+          setGuestName(snap.docs[0].data().nama)
+          
+          // Ensure we still show the Preloader for a total of at least 2.5 seconds
+          const elapsed = Date.now() - startTime
+          const remainingDelay = Math.max(0, 2500 - elapsed)
+          
+          setTimeout(() => {
+            setStatus('valid')
+          }, remainingDelay)
+        }
+      } catch {
+        // Jika Firestore error, anggap invalid demi keamanan
+        setStatus('invalid')
+      }
+    }
+
+    checkSlugAndLoad()
+  }, [slug])
+
+  // Layar loading saat verifikasi
+  if (status === 'checking') {
+    return <Preloader guestName={guestName} />
+  }
+
+  if (status === 'invalid') return <InvalidInvitation />
+
+  return <WeddingPage />
+}
 
 function App() {
   useEffect(() => {
@@ -69,7 +143,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<WeddingPage />} />
+      {/* Semua akses ke "/" wajib melalui gate validasi */}
+      <Route path="/" element={<InvitationGate />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route
         path="/admin"

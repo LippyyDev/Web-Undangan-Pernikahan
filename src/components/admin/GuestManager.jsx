@@ -5,7 +5,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Copy, Check, Link, Users, FileUp, X, AlertCircle, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Link, Users, FileUp, Download, X, AlertCircle, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
 // Fungsi generate slug dari nama
 const toSlug = (nama) =>
@@ -126,6 +126,35 @@ const GuestManager = () => {
   const handleCancelImport = () => {
     setImportPreview(null);
     setImportResult(null);
+  };
+
+  // ── Export ke .txt ──
+  const handleExportTxt = () => {
+    if (!guests.length) return;
+    const lines = guests.map((g) => {
+      const link = `${BASE_URL}/?to=${g.slug}`;
+      const status = g.rsvp_status === 'hadir' ? 'Hadir' : g.rsvp_status === 'berhalangan' ? 'Tidak Hadir' : 'Belum Jawab';
+      return `${g.nama}\n  Link  : ${link}\n  Status: ${status}`;
+    });
+    const header = [
+      '====================================',
+      '       DAFTAR TAMU UNDANGAN NIKAH   ',
+      '====================================',
+      `Total Tamu : ${guests.length}`,
+      `Hadir      : ${totalHadir}`,
+      `Tidak Hadir: ${totalBerhalangan}`,
+      `Belum Jawab: ${totalPending}`,
+      '====================================',
+      '',
+    ].join('\n');
+    const content = header + lines.join('\n\n') + '\n';
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daftar-tamu-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // ── Statistik RSVP ──
@@ -281,8 +310,25 @@ const GuestManager = () => {
 
       {/* ── Daftar Tamu ── */}
       <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="px-5 py-4 bg-white/[0.02] border-b border-white/5">
+        <div className="px-5 py-4 bg-white/[0.02] border-b border-white/5 flex items-center justify-between">
           <p className="text-white/50 text-xs font-medium uppercase tracking-widest">Daftar Tamu</p>
+          {guests.length > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+              onClick={handleExportTxt}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200"
+              style={{
+                background: 'rgba(195,163,101,0.10)',
+                color: '#C3A365',
+                border: '1px solid rgba(195,163,101,0.25)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(195,163,101,0.20)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(195,163,101,0.10)'; }}
+            >
+              <Download size={12} />
+              Export .txt
+            </motion.button>
+          )}
         </div>
 
         {guests.length === 0 ? (
