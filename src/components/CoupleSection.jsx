@@ -96,7 +96,7 @@ const CoupleSection = () => {
                 data-aos-duration="1200"
               >
                 <div className="running-border-inner">
-                  <img src="/Tenry.jpeg" alt="Andi Tenry" className="w-full h-full object-cover" />
+                  <img src="/Tenry.webp" alt="Andi Tenry" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
@@ -157,7 +157,7 @@ const CoupleSection = () => {
                 data-aos-delay="200"
               >
                 <div className="running-border-inner">
-                  <img src="/Palli.jpeg" alt="Pallira Yasser" className="w-full h-full object-cover" />
+                  <img src="/Palli.webp" alt="Pallira Yasser" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
