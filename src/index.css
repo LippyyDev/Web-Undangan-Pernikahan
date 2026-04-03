@@ -212,41 +212,63 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;  /* Firefox */
 }
 
-/* Subtle Border Glow Animation */
-@keyframes borderGlow {
-  0%, 100% {
-    box-shadow: 0 0 2px rgba(195, 163, 101, 0.1), inset 0 0 2px rgba(195, 163, 101, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(195, 163, 101, 0.4), inset 0 0 12px rgba(195, 163, 101, 0.3);
-  }
+/* Pulse Opacity Keyframe for GPU Acceleration */
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 1; }
 }
+@keyframes pulseOpacityText {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Subtle Border Glow Animation - Optimized */
 .animate-border-glow {
-  animation: borderGlow 4s ease-in-out infinite;
+  position: absolute;
+}
+.animate-border-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 16px rgba(195, 163, 101, 0.5), inset 0 0 12px rgba(195, 163, 101, 0.3);
+  pointer-events: none;
+  animation: pulseOpacity 4s ease-in-out infinite;
+  will-change: opacity;
+}
+.animate-border-glow-delayed::after {
+  animation-delay: 2s;
 }
 
-/* Neon Lamp Text Glow */
-@keyframes neonTextGlow {
-  0%, 100% {
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.5), 0 0 35px rgba(195, 163, 101, 0.4), 0 4px 10px rgba(0,0,0,0.5);
-  }
-  50% {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.8), 0 0 60px rgba(195, 163, 101, 0.6), 0 4px 10px rgba(0,0,0,0.5);
-  }
-}
+/* Neon Lamp Text Glow - Optimized */
 .animate-neon-text {
-  animation: neonTextGlow 2.5s ease-in-out infinite alternate;
+  position: relative;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.animate-neon-text::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  color: transparent;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.8), 0 0 60px rgba(195, 163, 101, 0.6);
+  pointer-events: none;
+  z-index: -1;
+  animation: pulseOpacityText 2.5s ease-in-out infinite alternate;
+  will-change: opacity;
 }
 
-/* Button Glow */
-@keyframes buttonGlow {
-  0%, 100% {
-    box-shadow: 0 0 12px rgba(195, 163, 101, 0.3), inset 0 0 4px rgba(195, 163, 101, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 24px rgba(195, 163, 101, 0.6), inset 0 0 8px rgba(195, 163, 101, 0.3);
-  }
-}
+/* Button Glow - Optimized */
 .animate-button-glow {
-  animation: buttonGlow 3s ease-in-out infinite alternate;
+  position: relative;
+}
+.animate-button-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 24px rgba(195, 163, 101, 0.8), inset 0 0 8px rgba(195, 163, 101, 0.4);
+  pointer-events: none;
+  animation: pulseOpacity 3s ease-in-out infinite alternate;
+  will-change: opacity;
 }

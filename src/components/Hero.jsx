@@ -57,7 +57,7 @@ const Hero = ({ onOpenInvitation }) => {
 
       {/* Gold Arch Frame Decor */}
       <div className="absolute inset-6 md:inset-10 z-10 border-[1.5px] border-[#C3A365]/70 rounded-[100px_100px_20px_20px] md:rounded-t-[200px] pointer-events-none animate-border-glow">
-         <div className="absolute inset-2 border-[1px] border-[#C3A365]/40 rounded-[92px_92px_12px_12px] md:rounded-t-[192px] pointer-events-none animate-border-glow" style={{ animationDelay: '2s' }}></div>
+         <div className="absolute inset-2 border-[1px] border-[#C3A365]/40 rounded-[92px_92px_12px_12px] md:rounded-t-[192px] pointer-events-none animate-border-glow animate-border-glow-delayed"></div>
       </div>
 
       <div className="z-40 text-center max-w-2xl mx-4 relative w-full pt-16">
@@ -81,6 +81,7 @@ const Hero = ({ onOpenInvitation }) => {
             data-aos="name-reveal" data-aos-duration="1500" data-aos-delay="200"
             style={{ fontFamily: "'Great Vibes', cursive", lineHeight: 1.1 }}
             className="text-8xl md:text-[10rem] text-white block animate-neon-text delay-700"
+            data-text="Tenry"
           >
             Tenry
           </p>
@@ -95,6 +96,7 @@ const Hero = ({ onOpenInvitation }) => {
             data-aos="name-reveal" data-aos-duration="1500" data-aos-delay="1300"
             style={{ fontFamily: "'Great Vibes', cursive", lineHeight: 1.1 }}
             className="text-8xl md:text-[10rem] text-white block animate-neon-text delay-1000"
+            data-text="Palli"
           >
             Palli
           </p>
